@@ -9,16 +9,18 @@ void OpenXRApi::openxr_release_api() {
     if (singleton == NULL) {
         // nothing to release
         printf("OpenXR: tried to release non-existent OpenXR context\n");
-    } // else if (singleton->use_count > 1) {
+    // } else if (singleton->use_count > 1) {
     //  // decrease use count
     //  singleton->use_count--;
     //  printf("OpenXR: decreased use count to %i\n", singleton->use_count);
-    // }
-    else {
+    //
+    //  singleton->destroy_openxr();
+    } else {
         // cleanup openxr
         printf("OpenXR: releasing OpenXR context\n");
 
         delete singleton;
+        printf("OpenXRApi *OpenXRApi::singleton\n");
         singleton = NULL;
     };
 };
@@ -687,6 +689,7 @@ OpenXRApi::OpenXRApi() {
 }
 
 OpenXRApi::~OpenXRApi() {
+    printf("Entered ~OpenXRAPI\n");
     free(projection_views);
     free(configuration_views);
     free(buffer_index);
@@ -700,10 +703,18 @@ OpenXRApi::~OpenXRApi() {
     free(projectionLayer);
     free(views);
 
+    xrRequestExitSession(session);
+    printf("xrRequestExitSession\n");
+    xrEndSession(session);
+    printf("EndSession\n");
+
     if (session) {
+        printf("OpenXRApi destroy session\n");
         xrDestroySession(session);
     }
+        printf("OpenXRApi destroy instance\n");
     xrDestroyInstance(instance);
+    printf("OpenXRApi::~OpenXRApi()\n");
 }
 
 XrAction OpenXRApi::createAction(XrActionType actionType, const char *actionName, const char *localizedActionName) {
